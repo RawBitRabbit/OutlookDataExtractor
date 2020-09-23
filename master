@@ -1,0 +1,45 @@
+import csv  
+import win32com.client
+from datetime import datetime
+
+outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
+
+# Specify inboxes in outlook
+inbox = outlook.GetDefaultFolder(6)
+
+messages = inbox.Items
+
+# Create empty list to store results
+data_set = list()
+date_id = (datetime.today()).strftime('%Y%m%d') # Used to create the filename
+
+#Iterating through email items in outlook folder  
+
+for message in messages:
+    row = list()
+    try:
+        row.append(inbox)
+        row.append(message.Subject)
+        row.append(message.Categories)
+        row.append(message.Sender)
+        row.append(message.Sender.Address)
+        row.append(message.To)
+        row.append(message.SentOn)
+        row.append(message.CC)
+        row.append(message.BCC)
+                
+ 
+        # Stores the data in a list
+        data_set.append(row)
+    except AttributeError as ex:
+      print('Error', ex, 'skipping message', message)
+      continue
+                
+# Print out the result to a csv with headers
+with open(date_id + "_"+ 'outlook_Data.csv', 'w', newline='', encoding='utf-8') as csv_file:
+    headers = ['Source', 'Subject', 'Category', 'From', 'To', 'Sent On', 'CC', 'BCC']
+    wr = csv.writer(csv_file, delimiter=',')
+    wr.writerow(headers)
+    for line in data_set:
+        wr.writerow(line)
+      
